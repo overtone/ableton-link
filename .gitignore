@@ -1,0 +1,15 @@
+*~
+.\#*
+\#*\#
+*.jar
+*.so
+*.dll
+*.class
+/.lein-*
+/lib/
+/classes/
+/out/
+/target/
+.repl
+.nrepl-port
+.sass-cache
