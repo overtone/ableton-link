@@ -2,8 +2,6 @@
 .\#*
 \#*\#
 *.jar
-*.so
-*.dll
 *.class
 /.lein-*
 /lib/
