@@ -1,4 +1,4 @@
-#include <jni.h>
+// #include <jni.h>
 #include <ableton/Link.hpp>
 
 #ifndef link_bindings_H
@@ -77,18 +77,17 @@ public:
 
 
 extern "C" {
-  void Java_AbletonLink_enable(bool enableBool);
-  // JNIEXPORT void   JNICALL Java_AbletonLink_enable(JNIEnv *, jobject, jboolean);
-  // JNIEXPORT bool   JNICALL Java_AbletonLink_isEnabled(JNIEnv *, jobject);
-  // JNIEXPORT double JNICALL Java_AbletonLink_getBeat(JNIEnv *, jobject);
-  // JNIEXPORT void   JNICALL Java_AbletonLink_setBeat(JNIEnv *, jobject, jdouble);
-  // JNIEXPORT void   JNICALL Java_AbletonLink_setBeatForce(JNIEnv *, jobject, jdouble);
-  // JNIEXPORT double JNICALL Java_AbletonLink_getPhase(JNIEnv *, jobject);
-  // JNIEXPORT double JNICALL Java_AbletonLink_getBpm(JNIEnv *, jobject);
-  // JNIEXPORT void   JNICALL Java_AbletonLink_setBpm(JNIEnv *, jobject, jdouble);
-  // JNIEXPORT int    JNICALL Java_AbletonLink_getNumPeers(JNIEnv *, jobject);
-  // JNIEXPORT void   JNICALL Java_AbletonLink_setQuantum(JNIEnv *, jobject, jdouble);
-  // JNIEXPORT double JNICALL Java_AbletonLink_getQuantum(JNIEnv *, jobject);
-  // JNIEXPORT void   JNICALL Java_AbletonLink_update(JNIEnv *, jobject);
+  void AbletonLink_enable(bool enableBool);
+  bool AbletonLink_isEnabled();
+  double AbletonLink_getBeat();
+  void AbletonLink_setBeat(double beat);
+  void AbletonLink_setBeatForce(double beat);
+  double AbletonLink_getPhase();
+  double AbletonLink_getBpm();
+  void AbletonLink_setBpm(double bpm);
+  int AbletonLink_getNumPeers();
+  void AbletonLink_setQuantum(double quantum);
+  double AbletonLink_getQuantum();
+  void AbletonLink_update();
   
 }

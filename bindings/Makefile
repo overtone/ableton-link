@@ -12,9 +12,9 @@ else
     PLATFORM= 'LINK_PLATFORM_LINUX=1'
     OUT_LIB_FILE = '../native/linux/x86_64/libabletonlink.so'
 endif
-
+# -I$(JAVA_DIR) -I$(JAVA_DIR)/linux
 build:
-	g++ -fPIC -I$(JAVA_DIR) -I$(JAVA_DIR)/linux -I../link/include -I../link/modules/asio-standalone/asio/include -D$(PLATFORM) -shared -o $(OUT_LIB_FILE) link_bindings.cc
+	g++ -fPIC  -I../link/include -I../link/modules/asio-standalone/asio/include -D$(PLATFORM) -shared -o $(OUT_LIB_FILE) link_bindings.cc
 
 clean:
 	rm $OUT_LIB_FILE

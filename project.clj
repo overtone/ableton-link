@@ -10,10 +10,11 @@
             :comments "Please use Overtone for good"}
 
   :dependencies [[org.clojure/clojure "1.9.0"]
+                 [org.clojure/spec.alpha "0.1.143"]
                  [net.java.dev.jna/jna "4.4.0"]
                  [clj-native "0.9.5"]]
   
-  :java-source-paths ["src/overtone/java"]
+  ;; :java-source-paths ["src/overtone/java"]
 
   :source-paths ["src"]
 

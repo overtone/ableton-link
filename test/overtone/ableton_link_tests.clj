@@ -2,9 +2,9 @@
   (:use clojure.test)
   (:require [overtone.ableton-link :as link]))
 
-(deftest class-name
-  (is (= "class AbletonLink"
-         (str (type link/ableton-link)))))
+#_(deftest class-name
+    (is (= "class AbletonLink"
+           (str (type link/ableton-link)))))
 
 (deftest initially-disabled
   (is (= false (link/link-enabled?))))
@@ -14,7 +14,7 @@
   (is (= true (link/link-enabled?))))
 
 (deftest initial-beat-0
-  (is (zero? (.getBeat link/ableton-link))))
+  (is (zero? (link/-get-beat))))
 
 (deftest get-beat-updates-the-clock
   (is (not (zero? (link/get-beat)))))
@@ -35,7 +35,7 @@
 
 (use-fixtures :once
   (fn [f]
-    (class-name)
+    ;; (class-name)
     (initially-disabled)
     (enabled)
     (initial-beat-0)

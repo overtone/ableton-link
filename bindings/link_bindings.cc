@@ -1,81 +1,74 @@
-#include <jni.h>
+// #include <jni.h>
 #include "link_bindings.hpp"
 
 using namespace std;
 
 AbletonLink AL;
 
+// bool toBool (int num) {
+//   return (1 == num);
+// }
 
-void Java_AbletonLink_enable(bool enableBool)
+void AbletonLink_enable(bool enableBool)
 {
   AL.setLinkEnable(enableBool);
-  return;
+  // return;
 }
 
 
-// JNIEXPORT void JNICALL Java_AbletonLink_enable(JNIEnv *env, jobject thisObj, jboolean enableBool)
-// {
-//   AL.setLinkEnable(enableBool);
-//   // return;
-// }
-
-JNIEXPORT bool JNICALL Java_AbletonLink_isEnabled(JNIEnv *env, jobject thisObj)
+bool AbletonLink_isEnabled()
 {
   return AL.getLinkEnable();			       
 }
 
-JNIEXPORT double JNICALL Java_AbletonLink_getBeat(JNIEnv *env, jobject thisObj)
+double AbletonLink_getBeat()
 {
   return AL.getBeat();
 }
 
-JNIEXPORT void JNICALL Java_AbletonLink_setBeat(JNIEnv *env, jobject thisObj, jdouble beat)
+void AbletonLink_setBeat(double beat)
 {
   AL.setBeat(beat);
-  return;
+  // return;
 }
 
-JNIEXPORT void JNICALL Java_AbletonLink_setBeatForce(JNIEnv *env, jobject thisObj, jdouble beat)
+void AbletonLink_setBeatForce(double beat)
 {
   AL.setBeatForce(beat);
-  return;
+  // return;
 }
 
-JNIEXPORT double JNICALL Java_AbletonLink_getPhase(JNIEnv *env, jobject thisObj)
+double AbletonLink_getPhase()
 {
   return AL.getPhase();
 }
 
-JNIEXPORT double JNICALL Java_AbletonLink_getBpm(JNIEnv *env, jobject thisObj)
+double AbletonLink_getBpm()
 {
   return AL.getBpm();
 }
 
-JNIEXPORT void JNICALL Java_AbletonLink_setBpm(JNIEnv *env, jobject thisObj, jdouble bpm)
+void AbletonLink_setBpm(double bpm)
 {
   AL.setBpm(bpm);
-  return;
 }
 
-JNIEXPORT int JNICALL Java_AbletonLink_getNumPeers(JNIEnv *env, jobject thisObj)
+int AbletonLink_getNumPeers()
 {
   return AL.getNumPeers();
 }
 
-JNIEXPORT void JNICALL Java_AbletonLink_setQuantum(JNIEnv *env, jobject thisObj, jdouble quantum)
-{
-  AL.setQuantum(quantum);
-  return;
-}
-
-JNIEXPORT double JNICALL Java_AbletonLink_getQuantum(JNIEnv *env, jobject thisObj)
+double AbletonLink_getQuantum()
 {
   return AL.getQuantum();
 }
 
+void AbletonLink_setQuantum(double quantum)
+{
+  AL.setQuantum(quantum); 
+}
 
-JNIEXPORT void JNICALL Java_AbletonLink_update(JNIEnv *env, jobject thisObj)
+void AbletonLink_update()
 {
   AL.update();
-  return;
 }
