@@ -6,11 +6,18 @@ using namespace std;
 AbletonLink AL;
 
 
-JNIEXPORT void JNICALL Java_AbletonLink_enable(JNIEnv *env, jobject thisObj, jboolean enableBool)
+void Java_AbletonLink_enable(bool enableBool)
 {
   AL.setLinkEnable(enableBool);
-  // return;
+  return;
 }
+
+
+// JNIEXPORT void JNICALL Java_AbletonLink_enable(JNIEnv *env, jobject thisObj, jboolean enableBool)
+// {
+//   AL.setLinkEnable(enableBool);
+//   // return;
+// }
 
 JNIEXPORT bool JNICALL Java_AbletonLink_isEnabled(JNIEnv *env, jobject thisObj)
 {
