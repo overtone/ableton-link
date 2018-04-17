@@ -1,4 +1,4 @@
-(defproject overtone/ableton-link "1.0.0-alpha1"
+(defproject overtone/ableton-link "1.0.0-alpha"
   :description "Collaborative Programmable Music."
   :url "http://overtone.github.io/"
   :mailing-list {:name "overtone"
@@ -16,6 +16,8 @@
 
   :source-paths ["src"]
 
+  :resource-paths ["resources"]
+  
   :test-paths ["test"] 
   
   :native-path "native"

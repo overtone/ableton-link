@@ -1,38 +1,15 @@
 (ns overtone.ableton-link
-  (:require [clj-native.direct :refer [defclib loadlib]]
+  (:require overtone.link-jna-path
+            [clj-native.direct :refer [defclib loadlib]]
             [clj-native.structs :refer [byref]]
             [clj-native.callbacks :refer [callback]]
-            [clojure.spec.alpha :as s])
-  ;;(:import [AbletonLink])
-  )
-
-(defn- os-name
-  "Returns a string representing the current operating system. Useful
-   for debugging, etc. Prefer get-os for os-specific logic."
-  []
-  (System/getProperty "os.name"))
-
-(defn- get-os
-  "Return the OS as a keyword. One of :windows :linux :mac"
-  []
-  (let [os (os-name)]
-    (cond
-      (re-find #"[Ww]indows" os) :windows
-      (re-find #"[Ll]inux" os)   :linux
-      (re-find #"[Mm]ac" os)     :mac)))
-
-
-(defonce __SET_JNA_PATH__
-  (case (get-os)
-    :linux (System/setProperty "jna.library.path" "native/linux/x86_64")
-    :mac (System/setProperty "jna.library.path" "native/macosx/x86_64")
-    :windows (System/setProperty "jna.library.path" "native/windows/x86_64")))
+            [clojure.spec.alpha :as s]))
 
 
 (defclib lib-abletonlink
   (:libname "abletonlink")
   (:functions
-   (-ctor AbletonLink_ctor [] void*)
+   (-AbletonLink_ctor AbletonLink_ctor [] void*)
    (-enable-link AbletonLink_enable [void* bool] void)
    (-is-enabled AbletonLink_isEnabled [void* ] bool)
    (-get-beat AbletonLink_getBeat [void*] double)
@@ -49,17 +26,9 @@
 
 (loadlib lib-abletonlink)
 
-#_(defn -main []
-    (println "devTEST")
-    (-enable-link true)
-    (println "isneabled? " (-is-enabled))
-    (println "FINISH"))
-
-;; (def ableton-link (new AbletonLink))
-
 (s/fdef enable-link :args (s/cat :bool boolean?))
 
-(defonce -AL-pointer (-ctor))
+(defonce -AL-pointer (-AbletonLink_ctor))
 
 (defn enable-link
   "Enable link"
@@ -132,5 +101,4 @@
   []
   (-update -AL-pointer)
   (-get-quantum -AL-pointer))
-
 
