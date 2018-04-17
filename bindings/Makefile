@@ -1,20 +1,21 @@
-JAVA_DIR = $(wildcard /usr/java/jdk*/include)
+UNAME := $(shell uname)
 
-ifeq ($(OS),Windows_NT)
-    PLATFORM='LINK_PLATFORM_WINDOWS=1'
-    OUT_LIB_FILE = '../native/windows/x86_64/abletonlink.dll'
-
-else ifeq ($(UNAME_S),Darwin)
+ifeq ($(UNAME),Darwin)
     PLATFORM='LINK_PLATFORM_MACOSX=1'
-    OUT_LIB_FILE = '../native/macosx/x86_64/libabletonlink.so'
-
+    OUT_LIB_FILE='../native/macosx/x86_64/libabletonlink.dylib'
+    PROGRAM='clang++'
+    SHARED_LIB_FLAG='-dynamiclib'
 else
-    PLATFORM= 'LINK_PLATFORM_LINUX=1'
-    OUT_LIB_FILE = '../native/linux/x86_64/libabletonlink.so'
+    PLATFORM='LINK_PLATFORM_LINUX=1'
+    OUT_LIB_FILE='../native/linux/x86_64/libabletonlink.so'
+    PROGRAM='g++'
+    SHARED_LIB_FLAG='-shared -fPIC'
 endif
-# -I$(JAVA_DIR) -I$(JAVA_DIR)/linux
+
 build:
-	g++ -fPIC  -I../link/include -I../link/modules/asio-standalone/asio/include -D$(PLATFORM) -shared -o $(OUT_LIB_FILE) link_bindings.cc
+	$(PROGRAM) -I../link/include -I../link/modules/asio-standalone/asio/include -I/opt/local/include \
+	-D$(PLATFORM) -DASIO_HAS_BOOST_DATE_TIME=0 -std=c++11 -stdlib=libc++ -Weverything -m64  \
+	$(SHARED_LIB_FLAG) -o$(OUT_LIB_FILE) -DNDEBUG=1 link_bindings.cc
 
 clean:
 	rm $OUT_LIB_FILE

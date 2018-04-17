@@ -1,3 +1,4 @@
 [submodule "link"]
     path = link
     url = https://github.com/Ableton/link
+    ignore = dirty
