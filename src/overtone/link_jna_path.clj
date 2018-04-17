@@ -1,7 +1,7 @@
 (ns overtone.link-jna-path
   "Sets the jna path depending on os,
    essentially the same as `overtone/jna-path`
-   but overtone.ableton-live needs to be accessable to
+   but overtone.ableton-link needs to be accessable to
    non-overtone users too.")
 
 

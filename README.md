@@ -1,4 +1,4 @@
-# Ableton Link for Clojure
+# Ableton Link for Clojure [![Clojars Project](https://img.shields.io/clojars/v/overtone/ableton-link.svg)](https://clojars.org/overtone/ableton-link)
 ```
 "Link is a technology that keeps devices in time over a local network, so you can forget the hassle of setting up and focus on playing music."
 ```
