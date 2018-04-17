@@ -7,14 +7,12 @@
   :license {:name "The MIT License (MIT)"
             :url "http://opensource.org/licenses/MIT"
             :distribution :repo
-            :comments "Please use Overtone for good"}
+            :comments "Same licence as the Overtone project."}
 
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [org.clojure/spec.alpha "0.1.143"]
                  [net.java.dev.jna/jna "4.4.0"]
-                 [clj-native "0.9.5"]]
-  
-  ;; :java-source-paths ["src/overtone/java"]
+                 [clj-native "0.9.5"]] 
 
   :source-paths ["src"]
 

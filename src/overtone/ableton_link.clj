@@ -93,6 +93,12 @@
   [beat]
   (-set-beat-force -AL-pointer beat))
 
+(defn get-phase
+  "Get the current phase of a bar"
+  []
+  (-update -AL-pointer)
+  (-get-phase -AL-pointer))
+
 (defn get-bpm
   "Get the current global bpm"
   []
