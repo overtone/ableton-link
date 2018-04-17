@@ -1,74 +1,61 @@
-// #include <jni.h>
 #include "link_bindings.hpp"
 
-using namespace std;
 
-AbletonLink AL;
+extern "C" DLL_EXPORT AbletonLink *AbletonLink_ctor();
 
-// bool toBool (int num) {
-//   return (1 == num);
-// }
+AbletonLink *AbletonLink_ctor() {
+  return new AbletonLink();
+}
 
-void AbletonLink_enable(bool enableBool)
+void AbletonLink_enable(AbletonLink *self, bool enableBool)
 {
-  AL.setLinkEnable(enableBool);
+  self->setLinkEnable(enableBool);
+}
+
+bool AbletonLink_isEnabled(AbletonLink *self)
+{
+  return self->getLinkEnable();          
+}
+double AbletonLink_getBeat(AbletonLink *self)
+{
+  return self->getBeat();
+}
+void AbletonLink_setBeat(AbletonLink *self, double beat)
+{
+  self->setBeat(beat);
   // return;
 }
-
-
-bool AbletonLink_isEnabled()
+void AbletonLink_setBeatForce(AbletonLink *self, double beat)
 {
-  return AL.getLinkEnable();			       
-}
-
-double AbletonLink_getBeat()
-{
-  return AL.getBeat();
-}
-
-void AbletonLink_setBeat(double beat)
-{
-  AL.setBeat(beat);
+  self->setBeatForce(beat);
   // return;
 }
-
-void AbletonLink_setBeatForce(double beat)
+double AbletonLink_getPhase(AbletonLink *self)
 {
-  AL.setBeatForce(beat);
-  // return;
+  return self->getPhase();
+}
+double AbletonLink_getBpm(AbletonLink *self)
+{
+  return self->getBpm();
+}
+void AbletonLink_setBpm(AbletonLink *self, double bpm)
+{
+  self->setBpm(bpm);
+}
+int AbletonLink_getNumPeers(AbletonLink *self)
+{
+  return self->getNumPeers();
+}
+double AbletonLink_getQuantum(AbletonLink *self)
+{
+  return self->getQuantum();
+}
+void AbletonLink_setQuantum(AbletonLink *self, double quantum)
+{
+  self->setQuantum(quantum); 
+}
+void AbletonLink_update(AbletonLink *self)
+{
+  self->update();
 }
 
-double AbletonLink_getPhase()
-{
-  return AL.getPhase();
-}
-
-double AbletonLink_getBpm()
-{
-  return AL.getBpm();
-}
-
-void AbletonLink_setBpm(double bpm)
-{
-  AL.setBpm(bpm);
-}
-
-int AbletonLink_getNumPeers()
-{
-  return AL.getNumPeers();
-}
-
-double AbletonLink_getQuantum()
-{
-  return AL.getQuantum();
-}
-
-void AbletonLink_setQuantum(double quantum)
-{
-  AL.setQuantum(quantum); 
-}
-
-void AbletonLink_update()
-{
-  AL.update();
-}

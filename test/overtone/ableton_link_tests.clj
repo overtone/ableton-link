@@ -14,7 +14,7 @@
   (is (= true (link/link-enabled?))))
 
 (deftest initial-beat-0
-  (is (zero? (link/-get-beat))))
+  (is (zero? (link/-get-beat link/-AL-pointer))))
 
 (deftest get-beat-updates-the-clock
   (is (not (zero? (link/get-beat)))))
