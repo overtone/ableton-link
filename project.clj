@@ -1,4 +1,4 @@
-(defproject overtone/ableton-link "1.0.0-alpha2"
+(defproject overtone/ableton-link "1.0.0-alpha3"
   :description "Collaborative Programmable Music."
   :url "http://overtone.github.io/"
   :mailing-list {:name "overtone"
