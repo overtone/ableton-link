@@ -37,6 +37,9 @@
 (def ^:private event-queue-atom
   (atom (priority-map)))
 
+(defmacro swallow-exceptions [& body]
+  `(try ~@body (catch Exception e#)))
+
 (defn- create-clock-thread [] 
   (future
     (while @link-running?
@@ -48,7 +51,7 @@
           (let [event (-> @event-queue-atom peek first)]
             (reset! event-queue-atom (pop @event-queue-atom))
             (when-not @(:stop-atom event)
-              ((:fun event))
+              (swallow-exceptions ((:fun event)))
               (when (:recurring event)
                 (swap! event-queue-atom assoc event
                        (+ cur-time (:perioid event))))))))
@@ -131,7 +134,6 @@
   (-get-quantum -AL-pointer))
 
 (defn- append-event-to-queue [event-record time]
-  (prn event-record time)
   (swap! event-queue-atom assoc event-record time))
 
 (defrecord ScheduledEvent
