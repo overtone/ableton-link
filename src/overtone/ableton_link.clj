@@ -29,9 +29,8 @@
 (defonce -AL-pointer (-AbletonLink_ctor))
 
 (def ^:private link-running?
-  (atom false))
-
-(def ^:private link-clock-thread-atom
+  "If not `nil` indicates that Link has been started, and holds a
+  function that can be called to stop the clock thread."
   (atom nil))
 
 (def ^:private event-queue-atom
@@ -40,9 +39,12 @@
 (defmacro swallow-exceptions [& body]
   `(try ~@body (catch Exception e#)))
 
-(defn- create-clock-thread [] 
+(defn- create-clock-thread
+  "Creates the event handling thread which runs as long as the atom
+  `run?` holds a truthy value."
+  [run?]
   (future
-    (while @link-running?
+    (while @run?
       (-update -AL-pointer)
       (let [cur-time (-get-beat -AL-pointer)]
         (while (and (not (empty? @event-queue-atom))
@@ -60,15 +62,23 @@
 (s/fdef enable-link :args (s/cat :bool boolean?))
 
 (defn enable-link
-  "Enable link"
+  "Enable link if `bool` is `true`, disable it otherwise."
   [bool]
-  (if (true? bool)
-    (when-not @link-running?
-      (do (reset! link-running? true)
-          (reset! link-clock-thread-atom (create-clock-thread))))
-    (do (reset! link-running? false)
-        (reset! link-clock-thread-atom nil)))
-  (-enable-link -AL-pointer bool))
+  (locking link-running?  ; Protect against retries which could lead to extra event threads being spawned.
+    (swap! link-running? (fn [state]
+                           (if (true? bool)
+                             ;; The caller wants us to be running.
+                             (if state
+                               state  ; Already running, no need to change anything.
+                               (let [run? (atom true)]  ; Start Link and the clock thread.
+                                 (create-clock-thread run?)
+                                 (-enable-link -AL-pointer true)
+                                 (fn [] (reset! run? false))))  ; State becomes function that will stop clock thread.
+                             ;; The caller wants us to be stopped.
+                             (when state  ; We only need to do anything if we were running.
+                               (state)  ; Call the function that stops the clock thread.
+                               (-enable-link -AL-pointer false)
+                               nil))))))  ; State becomes nil, indicating we are no longer running.
 
 (defn link-enabled?
   "Returns true if link is enabled"
