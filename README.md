@@ -51,3 +51,8 @@ Reads from the session and returns the number of peers connected.
 * `set-quantum`: `[number] => nil`
 Commits new quantum to the session, quantum is the quantization of a bar,
 similar to division of a musical time signature.
+
+
+# LICENCE
+
+[https://github.com/overtone/ableton-link/blob/master/LICENSE](Overtone's Ableton-Link is licensed under GPLv3+)
