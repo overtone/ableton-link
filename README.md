@@ -55,4 +55,4 @@ similar to division of a musical time signature.
 
 # LICENCE
 
-[https://github.com/overtone/ableton-link/blob/master/LICENSE](Overtone's Ableton-Link is licensed under GPLv3+)
+Overtone's Ableton-Link is licensed under [GPLv3+](https://github.com/overtone/ableton-link/blob/master/LICENSE)
