@@ -49,7 +49,7 @@
                     (<= (second (peek @event-queue-atom))
                         (-get-beat -AL-pointer)))
           (let [event (-> @event-queue-atom peek first)]
-            (reset! event-queue-atom (pop @event-queue-atom))
+            (swap! event-queue-atom pop)
             (when-not @(:stop-atom event)
               (swallow-exceptions ((:fun event)))
               (when (:recurring event)
