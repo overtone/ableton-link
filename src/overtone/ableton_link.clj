@@ -64,21 +64,21 @@
 (defn enable-link
   "Enable link if `bool` is `true`, disable it otherwise."
   [bool]
-  (locking link-running?  ; Protect against retries which could lead to extra event threads being spawned.
+  (locking link-running?  ;; Protect against retries which could lead to extra event threads being spawned.
     (swap! link-running? (fn [state]
                            (if (true? bool)
                              ;; The caller wants us to be running.
                              (if state
-                               state  ; Already running, no need to change anything.
-                               (let [run? (atom true)]  ; Start Link and the clock thread.
+                               state  ;; Already running, no need to change anything.
+                               (let [run? (atom true)]  ;; Start Link and the clock thread.
                                  (create-clock-thread run?)
                                  (-enable-link -AL-pointer true)
-                                 (fn [] (reset! run? false))))  ; State becomes function that will stop clock thread.
+                                 (fn [] (reset! run? false))))  ;; State becomes function that will stop clock thread.
                              ;; The caller wants us to be stopped.
-                             (when state  ; We only need to do anything if we were running.
-                               (state)  ; Call the function that stops the clock thread.
+                             (when state  ;; We only need to do anything if we were running.
+                               (state)  ;; Call the function that stops the clock thread.
                                (-enable-link -AL-pointer false)
-                               nil))))))  ; State becomes nil, indicating we are no longer running.
+                               nil))))))  ;; State becomes nil, indicating we are no longer running.
 
 (defn link-enabled?
   "Returns true if link is enabled"
