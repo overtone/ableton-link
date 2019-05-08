@@ -5,7 +5,7 @@ ifeq ($(UNAME),Darwin)
     OUT_LIB_FILE='../native/macosx/x86_64/libabletonlink.dylib'
     PROGRAM='clang++'
     SHARED_LIB_FLAG='-dynamiclib'
-    MAC_CPP='-std=c++11'
+    MAC_CPP='-std=c++14'
     MAC_LIB_CPP='-stdlib=libc++'
     MAC_ASIO_FIX='-DASIO_HAS_BOOST_DATE_TIME=0'
     MAC_EVERYTHING_FLAG='-Weverything'
