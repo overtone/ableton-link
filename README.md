@@ -34,9 +34,16 @@ If passed true, will enable link and network discovery, false for turning link o
 Returns true if link is enabled.
 * `get-beat`: `[] => number`
 Reads from the clock and returns the current beat value.
-* `set-beat`: `[number] => nil`
+* `set-beat-now`: `[number] => nil`
 Sets the current beat to a given value next time when all peers in sessions are togeather on same phase,
 if there's only one client in session, this will take effect immedietly.
+* `set-beat-at`: `[beat<number> timestamp<number>] => nil`
+Sets the beat to a given value at a given timestamp, the timestamp should be in microseconds.
+* `set-beat-and-quantum-now`: `[beat<number> quantum<number>] => nil`
+Sets the current beat and quantum to a given value next time when all peers in sessions are togeather on same phase,
+if there's only one client in session, this will take effect immedietly.
+* `set-beat-and-quantum-at`: `[beat<number> quantum<number> timestamp<number>] => nil`
+Sets the current beat and quantum to a given value at a given timestamp, the timestamp should be in microseconds.
 * `set-beat-force`: `[number] => nil`
 USE WITH CAUTION, this will set the current beat for all in session on a give value, will take
 effect immedietly and could cause disconinuity (may be anti-social behaviour).

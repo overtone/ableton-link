@@ -1,7 +1,7 @@
 /*
 
   Copyright (C) 2018, Hlöðver Sigurðsson
-  
+
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
@@ -34,16 +34,23 @@ void AbletonLink_enable(AbletonLink *self, bool enableBool)
 
 bool AbletonLink_isEnabled(AbletonLink *self)
 {
-  return self->getLinkEnable();          
+  return self->getLinkEnable();
 }
 double AbletonLink_getBeat(AbletonLink *self)
 {
   return self->getBeat();
 }
-void AbletonLink_setBeat(AbletonLink *self, double beat)
+void AbletonLink_setBeatNow(AbletonLink *self, double beat)
 {
-  self->setBeat(beat);
-  // return;
+  self->setBeatNow(beat);
+}
+void AbletonLink_setBeatAt(AbletonLink *self, double beat, double timestamp)
+{
+  self->setBeatAt(beat, timestamp);
+}
+void AbletonLink_setBeatAndQuantumNow(AbletonLink *self, double beat, double quantum)
+{
+  self->setBeatAndQuantumNow(beat, quantum);
 }
 void AbletonLink_setBeatForce(AbletonLink *self, double beat)
 {
@@ -72,10 +79,21 @@ double AbletonLink_getQuantum(AbletonLink *self)
 }
 void AbletonLink_setQuantum(AbletonLink *self, double quantum)
 {
-  self->setQuantum(quantum); 
+  self->setQuantum(quantum);
+}
+auto AbletonLink_getTimestamp(AbletonLink *self)
+{
+  return self->getTimestamp();
+}
+void AbletonLink_setIsPlayingNow(AbletonLink *self, bool isPlaying)
+{
+  self->setIsPlayingNow(isPlaying);
+}
+void AbletonLink_setIsPlayingAt(AbletonLink *self, bool isPlaying, double timestamp)
+{
+  self->setIsPlayingAt(isPlaying, timestamp);
 }
 void AbletonLink_update(AbletonLink *self)
 {
   self->update();
 }
-

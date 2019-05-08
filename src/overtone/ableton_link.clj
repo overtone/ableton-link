@@ -30,7 +30,9 @@
    (-enable-link AbletonLink_enable [void* bool] void)
    (-is-enabled AbletonLink_isEnabled [void* ] bool)
    (-get-beat AbletonLink_getBeat [void*] double)
-   (-set-beat AbletonLink_setBeat [void* double] void)
+   (-set-beat-now AbletonLink_setBeatNow [void* double] void)
+   (-set-beat-at AbletonLink_setBeatAt [void* double double] void)
+   (-set-beat-and-quantum-now AbletonLink_setBeatAndQuantumNow [void* double double] void)
    (-set-beat-force AbletonLink_setBeatForce [void* double] void)
    (-get-phase AbletonLink_getPhase [void*] double)
    (-get-bpm AbletonLink_getBpm [void*] double)
@@ -38,6 +40,9 @@
    (-get-num-peers AbletonLink_getNumPeers [void*] int)
    (-get-quantum AbletonLink_getQuantum [void*] double)
    (-set-quantum AbletonLink_setQuantum [void* double] void)
+   (-get-timestamp AbletonLink_getTimestamp [void*] long)
+   (-set-is-playing-now AbletonLink_setIsPlayingNow [void* bool] void)
+   (-set-is-playing-at AbletonLink_setIsPlayingAt [void* bool double] void)
    (-update AbletonLink_update [void*] void)))
 
 (loadlib lib-abletonlink)
@@ -107,12 +112,27 @@
   []
   (-get-beat -AL-pointer))
 
-(s/fdef set-beat :args (s/cat :beat number?))
+(s/fdef set-beat-now :args (s/cat :beat number?))
 
-(defn set-beat
+(defn set-beat-now
   "Globally set the value of the beat (number)"
   [beat]
-  (-set-beat -AL-pointer beat))
+  (-set-beat-now -AL-pointer beat))
+
+(s/fdef set-beat-at :args (s/cat :beat number? :timestamp number?))
+
+(defn set-beat-at
+  "Globally set the value of the beat (number) at a given timestamp"
+  [beat timestamp]
+  (-set-beat-at -AL-pointer beat timestamp))
+
+(s/fdef set-beat-now :args (s/cat :beat number?))
+
+(defn set-beat-and-quantum-now
+  "Globally set the value of the beat (number) now"
+  [beat timestamp]
+  (-set-beat-and-quantum-now -AL-pointer beat timestamp))
+
 
 (s/fdef set-beat-force :args (s/cat :beat number?))
 
@@ -152,12 +172,28 @@
   [quantum]
   (-set-quantum -AL-pointer quantum))
 
-
 (defn get-quantum
   "Get the quantum of a bar, returns number,
    (return number of beats in a bar)"
   []
   (-get-quantum -AL-pointer))
+
+(defn get-timestamp
+  "Returns the timestamp in microseconds,
+   a format needed by *At setters"
+  []
+  (-get-timestamp -AL-pointer))
+
+(defn set-is-playing-now
+  "If false, the transport will stop playing."
+  [isPlaying?]
+  (-set-is-playing-now -AL-pointer isPlaying?))
+
+(defn set-is-playing-at
+  "If false, the transport will stop playing.
+   Give a timestamp to commit this action in the future."
+  [isPlaying? timestamp]
+  (-set-is-playing-now -AL-pointer isPlaying? timestamp))
 
 (defn- append-event-to-queue [event-record time]
   (swap! event-queue-atom assoc event-record time))

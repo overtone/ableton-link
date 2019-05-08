@@ -9,7 +9,7 @@
 (deftest initial-beat-0
   (is (zero? (link/-get-beat link/-AL-pointer))))
 
-(deftest initial-120bpm 
+(deftest initial-120bpm
   (is (== 120 (link/get-bpm))))
 
 (deftest initial-quantum-4
@@ -43,3 +43,5 @@
     (enable-starts-the-clock)
     (setting-bpm)
     (setting-quantum)))
+
+;; (run-tests)

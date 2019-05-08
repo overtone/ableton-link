@@ -1,7 +1,7 @@
 /*
 
   Copyright (C) 2018, Hlöðver Sigurðsson
-  
+
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
@@ -32,7 +32,7 @@ class AbletonLink {
   double phase{0.0};
   double bpm{120.0};
   double quantum{4.0};
-  
+
 public:
   AbletonLink()
     : AbletonLink(120.0) {}
@@ -47,16 +47,28 @@ public:
   {}
   explicit AbletonLink(const AbletonLink *other)
     : AbletonLink(other->bpm, other->quantum, other->getLinkEnable()) {}
-  
+
   bool getLinkEnable() const { return link.isEnabled(); }
   void setLinkEnable(bool enable) { link.enable(enable); }
   double getBeat() const { return beat; }
-  
-  void setBeat(double beat) {
-    const auto time = link.clock().micros();
+
+  void setBeatNow(double beat) {
+    const auto timeNow = link.clock().micros();
     auto timeline = link.captureAppSessionState();
-    timeline.requestBeatAtTime(beat, time, quantum);
+    timeline.requestBeatAtTime(beat, timeNow, quantum);
     link.commitAppSessionState(timeline);
+  }
+  void setBeatAt(double beat, long long int timestamp_ms) {
+    auto timeline = link.captureAppSessionState();
+    timeline.requestBeatAtTime(beat, (std::chrono::microseconds) timestamp_ms, quantum);
+    link.commitAppSessionState(timeline);
+  }
+  void setBeatAndQuantumNow(double beat, double newQuantum) {
+    const auto timeNow = link.clock().micros();
+    auto timeline = link.captureAppSessionState();
+    timeline.requestBeatAtTime(beat, timeNow, newQuantum);
+    link.commitAppSessionState(timeline);
+    this->quantum = newQuantum;
   }
   void setBeatForce(double beat) {
     const auto time = link.clock().micros();
@@ -75,17 +87,41 @@ public:
   }
   std::size_t getNumPeers() const { return link.numPeers(); }
   void setQuantum(double quantum) { this->quantum = quantum; }
-  
+
   double getQuantum() const { return quantum; }
-  
+
+  auto getTimestamp() const {
+    // using cast = std::chrono::duration<long long int>;
+    // long long int ticks = std::chrono::duration_cast< cast > link.clock().micros();
+    return link.clock().micros();;
+  }
+
+  bool isPlaying() const {
+    auto timeline = link.captureAppSessionState();
+    return timeline.isPlaying();
+  }
+
+  void setIsPlayingAt(bool isPlaying, long long int timestamp_ms) {
+    auto timeline = link.captureAppSessionState();
+    timeline.setIsPlaying(isPlaying, (std::chrono::microseconds) timestamp_ms);
+    link.commitAppSessionState(timeline);
+  }
+
+  void setIsPlayingNow(bool isPlaying) {
+    auto timeline = link.captureAppSessionState();
+    const auto timeNow = link.clock().micros();
+    timeline.setIsPlaying(isPlaying, timeNow);
+    link.commitAppSessionState(timeline);
+  }
+
   void update() {
     const auto time = link.clock().micros();
     auto timeline = link.captureAppSessionState();
-            
+
     beat = timeline.beatAtTime(time, quantum);
     phase = timeline.phaseAtTime(time, quantum);
     bpm = timeline.tempo();
-  };  
+  }
 };
 
 
@@ -101,7 +137,9 @@ extern "C" {
   DLL_EXPORT void STDCALL AbletonLink_enable(AbletonLink *self, bool enableBool);
   DLL_EXPORT bool STDCALL AbletonLink_isEnabled(AbletonLink *self);
   DLL_EXPORT double STDCALL AbletonLink_getBeat(AbletonLink *self);
-  DLL_EXPORT void STDCALL AbletonLink_setBeat(AbletonLink *self, double beat);
+  DLL_EXPORT void STDCALL AbletonLink_setBeatNow(AbletonLink *self, double beat);
+  DLL_EXPORT void STDCALL AbletonLink_setBeatAt(AbletonLink *self, double beat, double timestamp);
+  DLL_EXPORT void STDCALL AbletonLink_setBeatAndQuantumNow(AbletonLink *self, double beat, double newQuantum);
   DLL_EXPORT void STDCALL AbletonLink_setBeatForce(AbletonLink *self, double beat);
   DLL_EXPORT double STDCALL AbletonLink_getPhase(AbletonLink *self);
   DLL_EXPORT double STDCALL AbletonLink_getBpm(AbletonLink *self);
@@ -109,6 +147,9 @@ extern "C" {
   DLL_EXPORT int STDCALL AbletonLink_getNumPeers(AbletonLink *self);
   DLL_EXPORT void STDCALL AbletonLink_setQuantum(AbletonLink *self, double quantum);
   DLL_EXPORT double STDCALL AbletonLink_getQuantum(AbletonLink *self);
+  DLL_EXPORT auto STDCALL AbletonLink_getTimestamp(AbletonLink *self);
+  DLL_EXPORT void STDCALL AbletonLink_setIsPlayingNow(AbletonLink *self, bool isPlaying);
+  DLL_EXPORT void STDCALL AbletonLink_setIsPlayingAt(AbletonLink *self, bool isPlaying, double timestamp_ms);
   DLL_EXPORT void STDCALL AbletonLink_update(AbletonLink *self);
-  
+
 }
