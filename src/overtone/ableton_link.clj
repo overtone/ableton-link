@@ -181,7 +181,7 @@
     event))
 
 (defn after [delay fun & ignored]
-  (let [time (+ delay (-get-beat -AL-pointer))
+  (let [time  (+ delay (-get-beat -AL-pointer))
         event (ScheduledEvent. fun false 0 (atom false))]
     (append-event-to-queue event time)
     event))
