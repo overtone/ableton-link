@@ -13,3 +13,4 @@
 .sass-cache
 .DS_STORE
 pom.xml
+*.log

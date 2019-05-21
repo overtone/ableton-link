@@ -27,7 +27,7 @@
   []
   (System/getProperty "os.name"))
 
-(defn- get-os
+(defn get-os
   "Return the OS as a keyword. One of :windows :linux :mac"
   []
   (let [os (os-name)]

@@ -13,41 +13,123 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 (ns overtone.ableton-link
   (:require overtone.link-jna-path
-            [clj-native.direct :refer [defclib loadlib]]
-            [clj-native.structs :refer [byref]]
-            [clj-native.callbacks :refer [callback]]
             [clojure.data.priority-map :refer [priority-map]]
-            [clojure.spec.alpha :as s])
-  (:import  [java.io Writer]))
+            [clojure.java.io :as io]
+            [clojure.spec.alpha :as s]
+            [tech.jna :as jna])
+  (:import  [java.io Writer]
+            [com.sun.jna Native Platform Pointer IntegerType]
+            [com.sun.jna.ptr IntByReference]))
 
-(defclib lib-abletonlink
-  (:libname "abletonlink")
-  (:functions
-   (-AbletonLink_ctor AbletonLink_ctor [] void*)
-   (-enable-link AbletonLink_enable [void* bool] void)
-   (-is-enabled AbletonLink_isEnabled [void* ] bool)
-   (-get-beat AbletonLink_getBeat [void*] double)
-   (-set-beat-now AbletonLink_setBeatNow [void* double] void)
-   (-set-beat-at AbletonLink_setBeatAt [void* double double] void)
-   (-set-beat-and-quantum-now AbletonLink_setBeatAndQuantumNow [void* double double] void)
-   (-set-beat-force AbletonLink_setBeatForce [void* double] void)
-   (-get-phase AbletonLink_getPhase [void*] double)
-   (-get-bpm AbletonLink_getBpm [void*] double)
-   (-set-bpm AbletonLink_setBpm [void* double] void)
-   (-get-num-peers AbletonLink_getNumPeers [void*] int)
-   (-get-quantum AbletonLink_getQuantum [void*] double)
-   (-set-quantum AbletonLink_setQuantum [void* double] void)
-   (-get-timestamp AbletonLink_getTimestamp [void*] long)
-   (-set-is-playing-now AbletonLink_setIsPlayingNow [void* bool] void)
-   (-set-is-playing-at AbletonLink_setIsPlayingAt [void* bool double] void)
-   (-update AbletonLink_update [void*] void)))
+;; (set! *warn-on-reflection* true)
 
-(loadlib lib-abletonlink)
+(when (= :linux (overtone.link-jna-path/get-os))
+  (System/load (.getPath (io/resource "linux/x86_64/libstdc++.so.6"))))
 
-(defonce -AL-pointer (-AbletonLink_ctor))
+(jna/def-jna-fn "abletonlink" AbletonLink_ctor
+  "AbletonLink Constructor"
+  com.sun.jna.Pointer)
+
+(jna/def-jna-fn "abletonlink" AbletonLink_enable
+  ""
+  nil
+  [instance identity]
+  [bool boolean])
+
+(jna/def-jna-fn "abletonlink" AbletonLink_isEnabled
+  ""
+  Integer
+  [instance identity])
+
+(jna/def-jna-fn "abletonlink" AbletonLink_getBeat
+  ""
+  Double
+  [instance identity])
+
+(jna/def-jna-fn "abletonlink" AbletonLink_setBeatNow
+  ""
+  nil
+  [instance identity]
+  [new-beat double])
+
+(jna/def-jna-fn "abletonlink" AbletonLink_setBeatAt
+  ""
+  nil
+  [instance identity]
+  [new-beat double]
+  [timestamp double])
+
+(jna/def-jna-fn "abletonlink" AbletonLink_setBeatAndQuantumNow
+  ""
+  nil
+  [instance identity]
+  [new-beat double]
+  [quantum double])
+
+(jna/def-jna-fn "abletonlink" AbletonLink_setBeatForce
+  ""
+  nil
+  [instance identity]
+  [new-beat double])
+
+(jna/def-jna-fn "abletonlink" AbletonLink_getPhase
+  ""
+  Double
+  [instance identity])
+
+(jna/def-jna-fn "abletonlink" AbletonLink_getBpm
+  ""
+  Double
+  [instance identity])
+
+(jna/def-jna-fn "abletonlink" AbletonLink_setBpm
+  ""
+  nil
+  [instance identity]
+  [new-bpm double])
+
+(jna/def-jna-fn "abletonlink" AbletonLink_getNumPeers
+  ""
+  Integer
+  [instance identity])
+
+(jna/def-jna-fn "abletonlink" AbletonLink_getQuantum
+  ""
+  Double
+  [instance identity])
+
+(jna/def-jna-fn "abletonlink" AbletonLink_setQuantum
+  ""
+  nil
+  [instance identity]
+  [new-quantum double])
+
+(jna/def-jna-fn "abletonlink" AbletonLink_getTimestamp
+  ""
+  Long
+  [instance identity])
+
+(jna/def-jna-fn "abletonlink" AbletonLink_setIsPlayingNow
+  ""
+  nil
+  [instance identity]
+  [playing? boolean])
+
+(jna/def-jna-fn "abletonlink" AbletonLink_setIsPlayingAt
+  ""
+  nil
+  [instance identity]
+  [is-playing-bbol boolean]
+  [timestamp double])
+
+(jna/def-jna-fn "abletonlink" AbletonLink_update
+  ""
+  nil
+  [instance identity])
+
+(defonce -AL-pointer (AbletonLink_ctor))
 
 (def ^:private link-running?
   "If not `nil` indicates that Link has been started, and holds a
@@ -66,11 +148,11 @@
   [run?]
   (future
     (while @run?
-      (-update -AL-pointer)
-      (let [cur-time (-get-beat -AL-pointer)]
+      (AbletonLink_update -AL-pointer)
+      (let [cur-time (AbletonLink_getBeat -AL-pointer)]
         (while (and (not (empty? @event-queue-atom))
                     (<= (second (peek @event-queue-atom))
-                        (-get-beat -AL-pointer)))
+                        (AbletonLink_getBeat -AL-pointer)))
           (let [event (-> @event-queue-atom peek first)]
             (swap! event-queue-atom pop)
             (when-not @(:stop-atom event)
@@ -93,45 +175,45 @@
                                state  ;; Already running, no need to change anything.
                                (let [run? (atom true)]  ;; Start Link and the clock thread.
                                  (create-clock-thread run?)
-                                 (-enable-link -AL-pointer true)
+                                 (AbletonLink_enable -AL-pointer true)
                                  (fn [] (reset! run? false))))  ;; State becomes function that will stop clock thread.
                              ;; The caller wants us to be stopped.
                              (when state  ;; We only need to do anything if we were running.
                                (state)  ;; Call the function that stops the clock thread.
-                               (-enable-link -AL-pointer false)
+                               (AbletonLink_enable -AL-pointer false)
                                nil))))))  ;; State becomes nil, indicating we are no longer running.
 
 (defn link-enabled?
   "Returns true if link is enabled"
   []
-  (-is-enabled -AL-pointer))
+  (= 1 (AbletonLink_isEnabled -AL-pointer)))
 
 (defn get-beat
   "Sync(update) with link and
    return the current bpm"
   []
-  (-get-beat -AL-pointer))
+  (AbletonLink_getBeat -AL-pointer))
 
 (s/fdef set-beat-now :args (s/cat :beat number?))
 
 (defn set-beat-now
   "Globally set the value of the beat (number)"
   [beat]
-  (-set-beat-now -AL-pointer beat))
+  (AbletonLink_setBeatNow -AL-pointer beat))
 
 (s/fdef set-beat-at :args (s/cat :beat number? :timestamp number?))
 
 (defn set-beat-at
   "Globally set the value of the beat (number) at a given timestamp"
   [beat timestamp]
-  (-set-beat-at -AL-pointer beat timestamp))
+  (AbletonLink_setBeatAt -AL-pointer beat timestamp))
 
-(s/fdef set-beat-now :args (s/cat :beat number?))
+(s/fdef set-beat-and-quantum-now :args (s/cat :beat number? :quantum number?))
 
 (defn set-beat-and-quantum-now
   "Globally set the value of the beat (number) now"
-  [beat timestamp]
-  (-set-beat-and-quantum-now -AL-pointer beat timestamp))
+  [beat quantum]
+  (AbletonLink_setBeatAndQuantumNow -AL-pointer beat quantum))
 
 
 (s/fdef set-beat-force :args (s/cat :beat number?))
@@ -140,60 +222,60 @@
   "Forcefully and globally set
    the value of the beat (number)"
   [beat]
-  (-set-beat-force -AL-pointer beat))
+  (AbletonLink_setBeatForce -AL-pointer beat))
 
 (defn get-phase
   "Get the current phase of a bar"
   []
-  (-get-phase -AL-pointer))
+  (AbletonLink_getPhase -AL-pointer))
 
 (defn get-bpm
   "Get the current global bpm"
   []
-  (-get-bpm -AL-pointer))
+  (AbletonLink_getBpm -AL-pointer))
 
 (s/fdef set-bpm :args (s/cat :bpm number?))
 
 (defn set-bpm
   "Globally change the bpm on the link"
   [bpm]
-  (-set-bpm -AL-pointer bpm))
+  (AbletonLink_setBpm -AL-pointer bpm))
 
 (defn get-num-peers
   "Get number of connected peers"
   []
-  (-get-num-peers -AL-pointer))
+  (AbletonLink_getNumPeers -AL-pointer))
 
 (s/fdef set-quantum :args (s/cat :quantum number?))
-
-(defn set-quantum
-  "Sets the quantum, in a way like setting a
-   time-signature of a bar"
-  [quantum]
-  (-set-quantum -AL-pointer quantum))
 
 (defn get-quantum
   "Get the quantum of a bar, returns number,
    (return number of beats in a bar)"
   []
-  (-get-quantum -AL-pointer))
+  (AbletonLink_getQuantum -AL-pointer))
+
+(defn set-quantum
+  "Sets the quantum, in a way like setting a
+   time-signature of a bar"
+  [quantum]
+  (AbletonLink_setQuantum -AL-pointer quantum))
 
 (defn get-timestamp
   "Returns the timestamp in microseconds,
    a format needed by *At setters"
   []
-  (-get-timestamp -AL-pointer))
+  (AbletonLink_getTimestamp -AL-pointer))
 
 (defn set-is-playing-now
   "If false, the transport will stop playing."
-  [isPlaying?]
-  (-set-is-playing-now -AL-pointer isPlaying?))
+  [playing?]
+  (AbletonLink_setIsPlayingNow -AL-pointer playing?))
 
 (defn set-is-playing-at
   "If false, the transport will stop playing.
    Give a timestamp to commit this action in the future."
-  [isPlaying? timestamp]
-  (-set-is-playing-now -AL-pointer isPlaying? timestamp))
+  [playing? timestamp]
+  (AbletonLink_setIsPlayingAt -AL-pointer playing? timestamp))
 
 (defn- append-event-to-queue [event-record time]
   (swap! event-queue-atom assoc event-record time))
@@ -217,7 +299,7 @@
     event))
 
 (defn after [delay fun & ignored]
-  (let [time  (+ delay (-get-beat -AL-pointer))
+  (let [time  (+ delay (AbletonLink_getBeat -AL-pointer))
         event (ScheduledEvent. fun false 0 (atom false))]
     (append-event-to-queue event time)
     event))
@@ -230,13 +312,5 @@
 (defn stop-all []
   (reset! event-queue-atom (priority-map)))
 
-
-(comment
-  (enable-link true)
-  (get-beat)
-  (enable-link false)
-  (stop-all)
-  (def fn1 #(println "f"))
-  @event-queue-atom
-  (def a (every 1 #'fn1))
-  (stop a))
+(defn -main []
+  (System/exit 0))

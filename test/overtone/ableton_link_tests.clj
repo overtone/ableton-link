@@ -2,12 +2,11 @@
   (:use clojure.test)
   (:require [overtone.ableton-link :as link]))
 
-
 (deftest initially-disabled
   (is (= false (link/link-enabled?))))
 
 (deftest initial-beat-0
-  (is (zero? (link/-get-beat link/-AL-pointer))))
+  (is (zero? (link/AbletonLink_getBeat link/-AL-pointer))))
 
 (deftest initial-120bpm
   (is (== 120 (link/get-bpm))))

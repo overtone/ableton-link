@@ -9,11 +9,10 @@
             :distribution :repo
             :comments     "Same licence as the Overtone project."}
 
-  :dependencies [[org.clojure/clojure "1.9.0"]
+  :dependencies [[org.clojure/clojure "1.10.0"]
                  [org.clojure/spec.alpha "0.1.143"]
-                 [net.java.dev.jna/jna "4.4.0"]
-                 [clj-native "0.9.5"]
-                 [org.clojure/data.priority-map "0.0.9"]]
+                 [org.clojure/data.priority-map "0.0.9"]
+                 [techascent/tech.jna "3.14"]]
 
   :source-paths ["src"]
 
