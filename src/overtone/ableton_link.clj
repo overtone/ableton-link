@@ -14,19 +14,56 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (ns overtone.ableton-link
-  (:require overtone.link-jna-path
-            [clojure.data.priority-map :refer [priority-map]]
-            [clojure.java.io :as io]
-            [clojure.spec.alpha :as s]
-            [tech.jna :as jna])
-  (:import  [java.io Writer]
+  (:require
+   [clojure.data.priority-map :refer [priority-map]]
+   [clojure.java.io :as io]
+   [clojure.spec.alpha :as s]
+   [tech.jna :as jna])
+  (:import  [java.io File Writer]
             [com.sun.jna Native Platform Pointer IntegerType]
-            [com.sun.jna.ptr IntByReference]))
+            [com.sun.jna.ptr IntByReference]
+            [org.apache.commons.io FileUtils]))
 
-;; (set! *warn-on-reflection* true)
+(set! *warn-on-reflection* true)
 
-(when (= :linux (overtone.link-jna-path/get-os))
-  (System/load (.getPath (io/resource "linux/x86_64/libstdc++.so.6"))))
+(defn get-os
+  "Return the OS as a keyword. One of :windows :linux :mac"
+  []
+  (let [os (System/getProperty "os.name")]
+    (cond
+      (re-find #"[Ww]indows" os) :windows
+      (re-find #"[Ll]inux" os)   :linux
+      (re-find #"[Mm]ac" os)     :mac)))
+
+(defonce ^:private tmp-directory
+  (let [tmp-dir (io/file (FileUtils/getTempDirectoryPath)
+                         (str "libabletonlink" (System/currentTimeMillis)))]
+    (.mkdirs tmp-dir)
+    tmp-dir))
+
+(defonce ^:private __SET_JNA_PATH__
+  (System/setProperty "jna.library.path" (.getAbsolutePath ^File tmp-directory)))
+
+(case (get-os)
+  :linux (let [tmp-stdcxx (io/file tmp-directory "libstdc++.so.6")
+               tmp-ableton (io/file tmp-directory "libabletonlink.so")]
+           (with-open [in (io/input-stream (io/resource "linux/x86_64/libstdc++.so.6"))]
+             (io/copy in tmp-stdcxx))
+           (prn (.getAbsolutePath tmp-ableton))
+           (with-open [in (io/input-stream (io/resource "linux/x86_64/libabletonlink.so"))]
+             (io/copy in tmp-ableton))
+           (System/load (.getAbsolutePath tmp-stdcxx))
+           (System/load (.getAbsolutePath tmp-ableton)))
+  :windows (let [tmp-ableton (File/createTempFile "abletonlink" ".dll")]
+             (with-open [in (io/input-stream (io/resource "windows/x86_64/abletonlink.dll"))]
+               (io/copy in tmp-ableton))
+             (System/load (.getAbsolutePath tmp-ableton)))
+  :mac (let [tmp-ableton (File/createTempFile "libabletonlink" ".dylib")]
+         (with-open [in (io/input-stream (io/resource "macosx/x86_64/libabletonlink.dylib"))]
+           (io/copy in tmp-ableton))
+         (System/load (.getAbsolutePath tmp-ableton)))
+  (throw (Exception. (str "Unsupported Operating system: " (System/getProperty "os.name")))))
+
 
 (jna/def-jna-fn "abletonlink" AbletonLink_ctor
   "AbletonLink Constructor"
