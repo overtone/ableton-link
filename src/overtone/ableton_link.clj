@@ -52,7 +52,6 @@
                tmp-ableton (io/file tmp-directory "libabletonlink.so")]
            (with-open [in (io/input-stream (io/resource "linux/x86_64/libstdc++.so.6"))]
              (io/copy in tmp-stdcxx))
-           (prn (.getAbsolutePath tmp-ableton))
            (with-open [in (io/input-stream (io/resource "linux/x86_64/libabletonlink.so"))]
              (io/copy in tmp-ableton))
            (System/load (.getAbsolutePath tmp-stdcxx))
