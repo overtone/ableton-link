@@ -57,11 +57,11 @@
              (io/copy in tmp-ableton))
            (System/load (.getAbsolutePath tmp-stdcxx))
            (System/load (.getAbsolutePath tmp-ableton)))
-  :windows (let [tmp-ableton (File/createTempFile "abletonlink" ".dll")]
+  :windows (let [tmp-ableton (io/file tmp-directory "abletonlink.dll")]
              (with-open [in (io/input-stream (io/resource "windows/x86_64/abletonlink.dll"))]
                (io/copy in tmp-ableton))
              (System/load (.getAbsolutePath tmp-ableton)))
-  :mac (let [tmp-ableton (File/createTempFile "libabletonlink" ".dylib")]
+  :mac (let [tmp-ableton (io/file tmp-directory "libabletonlink.dylib")]
          (with-open [in (io/input-stream (io/resource "macosx/x86_64/libabletonlink.dylib"))]
            (io/copy in tmp-ableton))
          (System/load (.getAbsolutePath tmp-ableton)))
