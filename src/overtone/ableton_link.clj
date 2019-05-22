@@ -24,7 +24,7 @@
             [com.sun.jna.ptr IntByReference]
             [org.apache.commons.io FileUtils]))
 
-(set! *warn-on-reflection* true)
+;; (set! *warn-on-reflection* true)
 
 (defn get-os
   "Return the OS as a keyword. One of :windows :linux :mac"
@@ -39,6 +39,9 @@
   (let [tmp-dir (io/file (FileUtils/getTempDirectoryPath)
                          (str "libabletonlink" (System/currentTimeMillis)))]
     (.mkdirs tmp-dir)
+    (.addShutdownHook
+     (Runtime/getRuntime)
+     (Thread. #(FileUtils/deleteDirectory tmp-dir)))
     tmp-dir))
 
 (defonce ^:private __SET_JNA_PATH__
