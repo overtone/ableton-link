@@ -1,4 +1,4 @@
-(defproject overtone/ableton-link "1.0.0-beta3"
+(defproject overtone/ableton-link "1.0.0-beta4"
   :description "Collaborative Programmable Music."
   :url "http://overtone.github.io/"
   :mailing-list {:name    "overtone"
@@ -13,7 +13,7 @@
                  [org.clojure/clojure "1.10.0"]
                  [org.clojure/spec.alpha "0.1.143"]
                  [org.clojure/data.priority-map "0.0.9"]
-                 [techascent/tech.jna "3.14"]]
+                 [techascent/tech.jna "3.16"]]
 
   :source-paths ["src"]
 

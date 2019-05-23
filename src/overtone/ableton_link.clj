@@ -24,7 +24,7 @@
             [com.sun.jna.ptr IntByReference]
             [org.apache.commons.io FileUtils]))
 
-;; (set! *warn-on-reflection* true)
+(set! *warn-on-reflection* true)
 
 (defn get-os
   "Return the OS as a keyword. One of :windows :linux :mac"
@@ -65,7 +65,6 @@
            (io/copy in tmp-ableton))
          (System/load (.getAbsolutePath tmp-ableton)))
   (throw (Exception. (str "Unsupported Operating system: " (System/getProperty "os.name")))))
-
 
 (jna/def-jna-fn "abletonlink" AbletonLink_ctor
   "AbletonLink Constructor"
@@ -168,7 +167,8 @@
   nil
   [instance identity])
 
-(defonce -AL-pointer (AbletonLink_ctor))
+(with-out-str
+  (defonce -AL-pointer (AbletonLink_ctor)))
 
 (def ^:private link-running?
   "If not `nil` indicates that Link has been started, and holds a
