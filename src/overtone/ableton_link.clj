@@ -45,7 +45,10 @@
     tmp-dir))
 
 (defonce ^:private __SET_JNA_PATH__
-  (System/setProperty "jna.library.path" (.getAbsolutePath ^File tmp-directory)))
+  (System/setProperty
+   "jna.library.path"
+   (str (System/getProperty "jna.library.path") ":"
+        (.getAbsolutePath ^File tmp-directory))))
 
 (case (get-os)
   :linux (let [tmp-stdcxx (io/file tmp-directory "libstdc++.so.6")
