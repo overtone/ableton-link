@@ -39,9 +39,11 @@
   (let [tmp-dir (io/file (FileUtils/getTempDirectoryPath)
                          (str "libabletonlink" (System/currentTimeMillis)))]
     (.mkdirs tmp-dir)
-    (.addShutdownHook
-     (Runtime/getRuntime)
-     (Thread. #(FileUtils/deleteDirectory tmp-dir)))
+    ;; windows tmp management can be so aggressive that this file is sometimes already delete
+    (when-not (= :windows (get-os))
+      (.addShutdownHook
+       (Runtime/getRuntime)
+       (Thread. #(FileUtils/deleteDirectory tmp-dir))))
     tmp-dir))
 
 (defonce ^:private __SET_JNA_PATH__
@@ -60,7 +62,7 @@
            (System/load (.getAbsolutePath tmp-stdcxx))
            (System/load (.getAbsolutePath tmp-ableton)))
   :windows (let [tmp-ableton (io/file tmp-directory "abletonlink.dll")]
-             (with-open [in (io/input-stream (io/resource "windows\\x86_64\\abletonlink.dll"))]
+             (with-open [in (io/input-stream (io/resource "windows/x86_64/abletonlink.dll"))]
                (io/copy in tmp-ableton))
              (System/load (.getAbsolutePath tmp-ableton)))
   :mac (let [tmp-ableton (io/file tmp-directory "libabletonlink.dylib")]
