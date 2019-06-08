@@ -76,7 +76,7 @@
                     :mac ["x86_64/libabletonlink.dylib"])]
     (doseq [in-file resources]
       (FileUtils/copyURLToFile
-       (io/resource (.getPath (io/file classp-loc in-file)))
+       (io/resource (string/replace (.getPath (io/file classp-loc in-file)) "\\" "/"))
        (io/file destination-dir in-file)))))
 
 (case (get-os)
