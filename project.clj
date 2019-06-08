@@ -13,7 +13,7 @@
                  [org.clojure/clojure "1.10.0"]
                  [org.clojure/spec.alpha "0.1.143"]
                  [org.clojure/data.priority-map "0.0.9"]
-                 [techascent/tech.jna "3.16"]]
+                 [techascent/tech.jna "3.18"]]
 
   :source-paths ["src"]
 

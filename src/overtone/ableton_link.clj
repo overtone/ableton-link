@@ -52,23 +52,56 @@
    (str (System/getProperty "jna.library.path") ":"
         (.getAbsolutePath ^File tmp-directory))))
 
+(defn resource-writable?
+  [^java.lang.String path]
+  (.canWrite (io/file (io/resource path))))
+
+(defn resource-filepath
+  [^java.lang.String resource-path]
+  (.getAbsolutePath (io/file (io/resource resource-path))))
+
+(defn spit-abletonlink-lib!
+  "useful function when ableton-link is bundled in a jar,
+   but spitting the library file into a tmp directory is
+   unwanted. Spits only the files for a specific os."
+  [dest]
+  (let [os (case (get-os) :mac "macosx" (name (get-os)))
+        classp-loc (.getPath (io/file os))
+        destination-dir (io/file dest classp-loc)
+        resources (case (get-os)
+                    :linux ["x86_64/libstdc++.so.6"
+                            "x86_64/libabletonlink.so"]
+                    :windows ["x86_64/abletonlink.dll"]
+                    :mac ["x86_64/libabletonlink.dylib"])]
+    (doseq [in-file resources]
+      (FileUtils/copyURLToFile
+       (io/resource (.getPath (io/file classp-loc in-file)))
+       (io/file destination-dir in-file)))))
+
 (case (get-os)
-  :linux (let [tmp-stdcxx (io/file tmp-directory "libstdc++.so.6")
-               tmp-ableton (io/file tmp-directory "libabletonlink.so")]
-           (with-open [in (io/input-stream (io/resource "linux/x86_64/libstdc++.so.6"))]
-             (io/copy in tmp-stdcxx))
-           (with-open [in (io/input-stream (io/resource "linux/x86_64/libabletonlink.so"))]
-             (io/copy in tmp-ableton))
-           (System/load (.getAbsolutePath tmp-stdcxx))
-           (System/load (.getAbsolutePath tmp-ableton)))
-  :windows (let [tmp-ableton (io/file tmp-directory "abletonlink.dll")]
-             (with-open [in (io/input-stream (io/resource "windows/x86_64/abletonlink.dll"))]
+  :linux (if (resource-writable? "linux/x86_64/libabletonlink.so")
+           (do (System/load (resource-filepath "linux/x86_64/libstdc++.so.6"))
+               (System/load (resource-filepath "linux/x86_64/libabletonlink.so")))
+           (let [tmp-stdcxx (io/file tmp-directory "libstdc++.so.6")
+                 tmp-ableton (io/file tmp-directory "libabletonlink.so")]
+             (with-open [in (io/input-stream (io/resource "linux/x86_64/libstdc++.so.6"))]
+               (io/copy in tmp-stdcxx))
+             (with-open [in (io/input-stream (io/resource "linux/x86_64/libabletonlink.so"))]
                (io/copy in tmp-ableton))
-             (System/load (.getAbsolutePath tmp-ableton)))
-  :mac (let [tmp-ableton (io/file tmp-directory "libabletonlink.dylib")]
-         (with-open [in (io/input-stream (io/resource "macosx/x86_64/libabletonlink.dylib"))]
-           (io/copy in tmp-ableton))
-         (System/load (.getAbsolutePath tmp-ableton)))
+             (System/load (.getAbsolutePath tmp-stdcxx))
+             (System/load (.getAbsolutePath tmp-ableton))))
+  :windows (if (resource-writable? "windows/x86_64/abletonlink.dll")
+             (System/load (resource-filepath "windows/x86_64/abletonlink.dll"))
+             (let [tmp-ableton (io/file tmp-directory "abletonlink.dll")]
+               (with-open [in (io/input-stream (io/resource "windows/x86_64/abletonlink.dll"))]
+                 (io/copy in tmp-ableton))
+               (System/load (.getAbsolutePath tmp-ableton))))
+  :mac (if (resource-writable? "macosx/x86_64/libabletonlink.dylib")
+         (System/load (resource-filepath "macosx/x86_64/libabletonlink.dylib"))
+         (let [tmp-ableton (io/file tmp-directory "libabletonlink.dylib")]
+           (with-open [in (io/input-stream (io/resource "macosx/x86_64/libabletonlink.dylib"))]
+             (io/copy in tmp-ableton))
+           (System/load (.getAbsolutePath tmp-ableton))))
   (throw (Exception. (str "Unsupported Operating system: " (System/getProperty "os.name")))))
 
 (jna/def-jna-fn "abletonlink" AbletonLink_ctor
