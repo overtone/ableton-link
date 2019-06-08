@@ -17,6 +17,7 @@
   (:require
    [clojure.data.priority-map :refer [priority-map]]
    [clojure.java.io :as io]
+   [clojure.string :as string]
    [clojure.spec.alpha :as s]
    [tech.jna :as jna])
   (:import  [java.io File Writer]
@@ -52,9 +53,9 @@
    (str (System/getProperty "jna.library.path") ":"
         (.getAbsolutePath ^File tmp-directory))))
 
-(defn resource-writable?
+(defn resource-inside-jar?
   [^java.lang.String path]
-  (.canWrite (io/file (io/resource path))))
+  (string/starts-with? (.toString (io/resource path)) "jar:file"))
 
 (defn resource-filepath
   [^java.lang.String resource-path]
@@ -79,7 +80,7 @@
        (io/file destination-dir in-file)))))
 
 (case (get-os)
-  :linux (if (resource-writable? "linux/x86_64/libabletonlink.so")
+  :linux (if-not (resource-inside-jar? "linux/x86_64/libabletonlink.so")
            (do (System/load (resource-filepath "linux/x86_64/libstdc++.so.6"))
                (System/load (resource-filepath "linux/x86_64/libabletonlink.so")))
            (let [tmp-stdcxx (io/file tmp-directory "libstdc++.so.6")
@@ -90,13 +91,13 @@
                (io/copy in tmp-ableton))
              (System/load (.getAbsolutePath tmp-stdcxx))
              (System/load (.getAbsolutePath tmp-ableton))))
-  :windows (if (resource-writable? "windows/x86_64/abletonlink.dll")
+  :windows (if-not (resource-inside-jar? "windows/x86_64/abletonlink.dll")
              (System/load (resource-filepath "windows/x86_64/abletonlink.dll"))
              (let [tmp-ableton (io/file tmp-directory "abletonlink.dll")]
                (with-open [in (io/input-stream (io/resource "windows/x86_64/abletonlink.dll"))]
                  (io/copy in tmp-ableton))
                (System/load (.getAbsolutePath tmp-ableton))))
-  :mac (if (resource-writable? "macosx/x86_64/libabletonlink.dylib")
+  :mac (if-not (resource-inside-jar? "macosx/x86_64/libabletonlink.dylib")
          (System/load (resource-filepath "macosx/x86_64/libabletonlink.dylib"))
          (let [tmp-ableton (io/file tmp-directory "libabletonlink.dylib")]
            (with-open [in (io/input-stream (io/resource "macosx/x86_64/libabletonlink.dylib"))]
