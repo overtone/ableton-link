@@ -50,7 +50,8 @@
 (defonce ^:private __SET_JNA_PATH__
   (System/setProperty
    "jna.library.path"
-   (str (System/getProperty "jna.library.path") ":"
+   (str (System/getProperty "jna.library.path")
+        (if (= :windows (get-os)) ";" ":")
         (.getAbsolutePath ^File tmp-directory))))
 
 (defn resource-inside-jar?
